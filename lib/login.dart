@@ -99,17 +99,11 @@ class _LoginScreenState extends State<LoginScreen> {
               child: const Text('Login'),
             ),
             const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () {
+            TextButton(
+              onPressed: () {
                 Navigator.pushNamed(context, AppRoutes.signup);
               },
-              child: Text(
-                'Don\'t have an account? Sign Up',
-                style: TextStyle(
-                  color: AppStyles.primaryColor,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+              child: const Text('Don\'t have an account? Sign Up'),
             ),
           ],
         ),
