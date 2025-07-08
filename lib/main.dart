@@ -4,6 +4,7 @@ import 'navigation.dart';
 import 'styles.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MainApp());
 }
 
