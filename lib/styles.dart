@@ -12,11 +12,12 @@ class AppStyles {
   static final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
     backgroundColor: primaryColor,
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    foregroundColor: Colors.white
   );
 
   static const EdgeInsets containerPadding = EdgeInsets.all(16);
 
   static final ThemeData theme = ThemeData(
-    primarySwatch: Colors.deepOrange,
+    colorScheme: ColorScheme.dark(primary: primaryColor)
   );
 }
