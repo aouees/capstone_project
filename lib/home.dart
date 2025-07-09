@@ -5,6 +5,7 @@ import 'styles.dart';
 import 'detail.dart';
 import 'helpers/task_storage.dart';
 import 'models/task.dart';
+import 'navigation.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -109,6 +110,12 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.public),
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.countries);
+            },
           ),
         ],
       ),
