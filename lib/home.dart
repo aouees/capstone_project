@@ -156,9 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Notifications'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Notifications not implemented')),
-                );
+                Navigator.pushNamed(context, AppRoutes.notifications);
               },
             ),
             ListTile(
