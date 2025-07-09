@@ -5,6 +5,7 @@ import 'signup.dart';
 import 'home.dart';
 import 'countries_screen.dart';
 import 'edit_user_info_screen.dart';
+import 'settings_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -12,6 +13,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String countries = '/countries';
   static const String editUserInfo = '/editUserInfo';
+  static const String settings = '/settings';
 
   static Map<String, WidgetBuilder> get routes => {
         login: (context) => const LoginScreen(),
@@ -19,5 +21,6 @@ class AppRoutes {
         home: (context) => const HomeScreen(),
         countries: (context) => const CountriesScreen(),
         editUserInfo: (context) => const EditUserInfoScreen(),
+        settings: (context) => const SettingsScreen(),
       };
 }

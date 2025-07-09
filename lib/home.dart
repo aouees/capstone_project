@@ -148,9 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Account Settings'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Account settings not implemented')),
-                );
+                Navigator.pushNamed(context, AppRoutes.settings);
               },
             ),
             ListTile(
