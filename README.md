@@ -4,7 +4,7 @@ A new Flutter project.
 
 ## Features
 
-- Manage habits and tasks
+- Manage tasks and habits
 - View countries list
 - Edit user profile settings
-- Configure and test notifications (web supported)
+- Configure task notifications and test them on the web

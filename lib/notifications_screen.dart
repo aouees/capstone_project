@@ -1,8 +1,11 @@
-import 'dart:convert';
 import 'dart:html' as html;
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'helpers/task_storage.dart';
+import 'models/task.dart';
+import 'styles.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -13,9 +16,9 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   bool notificationsEnabled = false;
-  List<String> selectedHabits = [];
+  List<String> selectedTasks = [];
   List<String> selectedTimes = [];
-  Map<String, String> allHabitsMap = {};
+  List<String> allTasks = [];
 
   @override
   void initState() {
@@ -25,41 +28,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
+    final List<Task> tasks = await TaskStorage.getTasks();
     setState(() {
       notificationsEnabled = prefs.getBool('notificationsEnabled') ?? false;
-      allHabitsMap = Map<String, String>.from(
-          jsonDecode(prefs.getString('selectedHabitsMap') ?? '{}'));
-      selectedHabits = prefs.getStringList('notificationHabits') ?? [];
+      selectedTasks = prefs.getStringList('notificationTasks') ?? [];
       selectedTimes = prefs.getStringList('notificationTimes') ?? [];
+      allTasks = tasks.map((t) => t.title).toList();
     });
   }
 
   Future<void> _saveNotificationSettings() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notificationsEnabled', notificationsEnabled);
-    await prefs.setStringList('notificationHabits', selectedHabits);
+    await prefs.setStringList('notificationTasks', selectedTasks);
     await prefs.setStringList('notificationTimes', selectedTimes);
-  }
-
-  Color _getColorFromHex(String hexColor) {
-    hexColor = hexColor.replaceAll('#', '');
-    if (hexColor.length == 6) {
-      hexColor = 'FF$hexColor';
-    }
-    return Color(int.parse('0x$hexColor'));
   }
 
   void _sendTestNotification() {
     if (html.Notification.permission != 'granted') {
       html.Notification.requestPermission().then((permission) {
         if (permission == 'granted') {
-          html.Notification('Habit Reminder',
-              body: "It's time to work on your habits!");
+          html.Notification('Task Reminder',
+              body: "It's time to work on your tasks!");
         }
       });
     } else {
-      html.Notification('Habit Reminder',
-          body: "It's time to work on your habits!");
+      html.Notification('Task Reminder',
+          body: "It's time to work on your tasks!");
     }
   }
 
@@ -67,11 +62,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: AppStyles.primaryColor,
         title: const Text('Notifications'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: AppStyles.containerPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -87,30 +82,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
             const Divider(),
             const Text(
-              'Select Habits for Notification',
+              'Select Tasks for Notification',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Wrap(
               spacing: 8.0,
               runSpacing: 8.0,
-              children: allHabitsMap.entries.map((entry) {
-                final habit = entry.key;
-                final colorHex = entry.value;
-                final color = _getColorFromHex(colorHex);
+              children: allTasks.map((task) {
                 return FilterChip(
-                  label: Text(habit),
-                  labelStyle: TextStyle(color: color),
-                  selected: selectedHabits.contains(habit),
-                  selectedColor: color.withOpacity(0.3),
-                  backgroundColor: Colors.white,
-                  side: BorderSide(color: color, width: 2.0),
+                  label: Text(task),
+                  selected: selectedTasks.contains(task),
+                  selectedColor: AppStyles.primaryColor.withOpacity(0.3),
                   onSelected: (bool selected) {
                     setState(() {
                       if (selected) {
-                        selectedHabits.add(habit);
+                        selectedTasks.add(task);
                       } else {
-                        selectedHabits.remove(habit);
+                        selectedTasks.remove(task);
                       }
                     });
                     _saveNotificationSettings();
@@ -131,6 +120,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 return FilterChip(
                   label: Text(time),
                   selected: selectedTimes.contains(time),
+                  selectedColor: AppStyles.primaryColor.withOpacity(0.3),
                   onSelected: (bool selected) {
                     setState(() {
                       if (selected) {
@@ -147,15 +137,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             const Spacer(),
             ElevatedButton(
               onPressed: _sendTestNotification,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade700,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
+              style: AppStyles.buttonStyle,
               child: const Text('Send Test Notification'),
             ),
           ],
