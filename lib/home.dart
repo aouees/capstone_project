@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'styles.dart';
+import 'detail.dart';
 
 class Task {
   String title;
+  String description;
   bool done;
-  Task(this.title, this.done);
+  Task(this.title, this.description, this.done);
 }
 
 class HomeScreen extends StatefulWidget {
@@ -35,26 +37,44 @@ class _HomeScreenState extends State<HomeScreen> {
       _username = storedUsername ?? '';
       _tasks = storedTasks?.map((e) {
             final parts = e.split('|');
-            return Task(parts[0], parts.length > 1 && parts[1] == '1');
+            return Task(
+              parts[0],
+              parts.length > 2 ? parts[1] : '',
+              parts.length > 2 ? parts[2] == '1' : parts.length > 1 && parts[1] == '1',
+            );
           }).toList() ?? [];
     });
   }
 
   Future<void> _saveTasks() async {
-    final List<String> store =
-        _tasks.map((t) => '${t.title}|${t.done ? '1' : '0'}').toList();
+    final List<String> store = _tasks
+        .map((t) => '${t.title}|${t.description}|${t.done ? '1' : '0'}')
+        .toList();
     await _prefs?.setStringList('tasks', store);
   }
 
   void _showAddDialog() {
-    final TextEditingController controller = TextEditingController();
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController descriptionController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('New Habit'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'Enter habit name'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration:
+                  const InputDecoration(hintText: 'Enter habit name'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: descriptionController,
+              decoration:
+                  const InputDecoration(hintText: 'Enter description'),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -65,10 +85,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              final String text = controller.text.trim();
+              final String text = titleController.text.trim();
+              final String desc = descriptionController.text.trim();
               if (text.isNotEmpty) {
                 setState(() {
-                  _tasks.add(Task(text, false));
+                  _tasks.add(Task(text, desc, false));
                 });
                 _saveTasks();
               }
@@ -126,6 +147,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ...toDo.map((task) => Card(
                         child: ListTile(
                           title: Text(task.title),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DetailScreen(task: task),
+                            ),
+                          ),
                           trailing: IconButton(
                             icon: const Icon(Icons.check_box_outline_blank),
                             onPressed: () => _toggleDone(_tasks.indexOf(task)),
@@ -137,6 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ...done.map((task) => Card(
                         child: ListTile(
                           title: Text(task.title),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DetailScreen(task: task),
+                            ),
+                          ),
                           trailing: IconButton(
                             icon: const Icon(Icons.check_box),
                             onPressed: () => _toggleDone(_tasks.indexOf(task)),
