@@ -3,13 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'styles.dart';
 import 'detail.dart';
-
-class Task {
-  String title;
-  String description;
-  bool done;
-  Task(this.title, this.description, this.done);
-}
+import 'helpers/task_storage.dart';
+import 'models/task.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,26 +26,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadData() async {
     _prefs = await SharedPreferences.getInstance();
-    final List<String>? storedTasks = _prefs!.getStringList('tasks');
+    final List<Task> storedTasks = await TaskStorage.getTasks();
     final String? storedUsername = _prefs!.getString('username');
     setState(() {
       _username = storedUsername ?? '';
-      _tasks = storedTasks?.map((e) {
-            final parts = e.split('|');
-            return Task(
-              parts[0],
-              parts.length > 2 ? parts[1] : '',
-              parts.length > 2 ? parts[2] == '1' : parts.length > 1 && parts[1] == '1',
-            );
-          }).toList() ?? [];
+      _tasks = storedTasks;
     });
   }
 
   Future<void> _saveTasks() async {
-    final List<String> store = _tasks
-        .map((t) => '${t.title}|${t.description}|${t.done ? '1' : '0'}')
-        .toList();
-    await _prefs?.setStringList('tasks', store);
+    await TaskStorage.saveTasks(_tasks);
   }
 
   void _showAddDialog() {
